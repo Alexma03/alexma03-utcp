@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-text",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Text content protocol for UTCP - handles direct text content (browser-compatible)",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -38,8 +38,8 @@
     }
   },
   "dependencies": {
-    "@alexma03/utcp-http": "workspace:*",
-    "@alexma03/utcp-sdk": "workspace:*",
+    "@alexma03/utcp-http": "^1.1.2",
+    "@alexma03/utcp-sdk": "^1.1.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

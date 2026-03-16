@@ -1,152 +1,157 @@
-# UTCP Code Mode MCP Bridge
+# @alexma03/utcp-code-mode-mcp
 
-**Execute TypeScript code with direct tool access through MCP.**
+MCP server for UTCP Code Mode. It exposes MCP tools that let an MCP client discover UTCP tools, inspect their TypeScript interfaces, register manuals dynamically, and execute TypeScript code with direct tool access.
 
-An advanced MCP server that brings UTCP Code Mode to the MCP ecosystem, allowing you to execute TypeScript code with all registered tools available as native TypeScript functions.
+This project is a fork of `universal-tool-calling-protocol`:
+https://github.com/universal-tool-calling-protocol
 
-## 🚀 Quick Start
+## Installation
 
-Add this configuration to your MCP client (Claude Desktop, etc.):
+You can run it directly with `npx`:
+
+```bash
+npx -y @alexma03/utcp-code-mode-mcp
+```
+
+You can also install it locally:
+
+```bash
+npm install @alexma03/utcp-code-mode-mcp
+```
+
+## MCP Client Configuration
+
+If you want to use the published package from an MCP client such as Windsurf, configure it like this:
 
 ```json
 {
-  "mcpServers": {
-    "utcp-codemode": {
-      "command": "npx",
-      "args": ["@utcp/code-mode-mcp"],
-      "env": {
-        "UTCP_CONFIG_FILE": "/path/to/your/.utcp_config.json"
-      }
+  "alexma03-utcp-code-mode": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@alexma03/utcp-code-mode-mcp"
+    ],
+    "env": {
+      "UTCP_CONFIG_FILE": "/Users/alex03/.utcp_config.json"
     }
   }
 }
 ```
 
-**That's it!** No installation required. The bridge will automatically:
-- Download and run the latest version via npx
-- Load your UTCP configuration from the specified path
-- Register all your UTCP manuals as tools available in TypeScript code
-- Enable TypeScript code execution with hierarchical tool access (e.g., `manual.tool()`)
+The `UTCP_CONFIG_FILE` environment variable should point to the UTCP configuration file that defines manuals, loaders, repositories, and search strategy.
 
-## 🔧 Configuration
+## Runtime Requirements
 
-Create a `.utcp_config.json` file to configure your tools and services:
+- Node `>=24.14.0 <25`
+- On macOS arm64, Node 25+ is explicitly rejected
+- `npx` must be available in the environment where the MCP client runs
+
+## UTCP Configuration
+
+The bridge loads UTCP configuration in this order:
+
+1. `UTCP_CONFIG_FILE`
+2. `.utcp_config.json` in the current working directory
+3. `.utcp_config.json` next to the installed package
+
+Example `.utcp_config.json`:
 
 ```json
 {
-    "load_variables_from": [
-      {
-        "variable_loader_type": "dotenv",
-        "env_file_path": ".env"
-      }
-    ],
-    "manual_call_templates": [
-      {
-          "name": "openlibrary",
-          "call_template_type": "http",
-          "http_method": "GET", 
-          "url": "https://openlibrary.org/static/openapi.json",
-          "content_type": "application/json"
-      }
-    ],
-    "post_processing": [
-      {
-          "tool_post_processor_type": "filter_dict",
-          "only_include_keys": ["name", "description"],
-          "only_include_tools": ["openlibrary.*"]
-      }
-    ],
-    "tool_repository": {
-      "tool_repository_type": "in_memory"
-    },
-    "tool_search_strategy": {
-      "tool_search_strategy_type": "tag_and_description_word_match"
+  "load_variables_from": [
+    {
+      "variable_loader_type": "dotenv",
+      "env_file_path": ".env"
     }
+  ],
+  "manual_call_templates": [
+    {
+      "name": "openlibrary",
+      "call_template_type": "http",
+      "http_method": "GET",
+      "url": "https://openlibrary.org/static/openapi.json",
+      "content_type": "application/json"
+    }
+  ],
+  "post_processing": [
+    {
+      "tool_post_processor_type": "filter_dict",
+      "only_include_keys": [
+        "name",
+        "description"
+      ],
+      "only_include_tools": [
+        "openlibrary.*"
+      ]
+    }
+  ],
+  "tool_repository": {
+    "tool_repository_type": "in_memory"
+  },
+  "tool_search_strategy": {
+    "tool_search_strategy_type": "tag_and_description_word_match"
+  }
 }
 ```
 
-### Enabling CLI Support
+## Exposed MCP Tools
 
-**Important:** CLI protocol support is **disabled by default** for security reasons. To enable CLI tool execution, you need to explicitly register the CLI plugin in 'index.ts'.
+This MCP server exposes these tools:
 
-```typescript
-import { register as registerCli } from "@utcp/cli";
+- `register_manual`
+- `deregister_manual`
+- `search_tools`
+- `list_tools`
+- `get_required_keys_for_tool`
+- `tools_info`
+- `call_tool_chain`
 
-// Enable CLI support
-registerCli();
-```
+## What `call_tool_chain` Does
 
-**Security Note:** Only enable CLI if you trust the code that will be executed, as CLI tools can execute arbitrary commands on your system.
+`call_tool_chain` executes TypeScript code with direct access to registered tools as hierarchical functions.
 
-## 🛠️ Available MCP Tools
-
-The bridge exposes these MCP tools for managing your UTCP Code Mode ecosystem:
-
-- **`register_manual`** - Register new UTCP manuals/APIs
-- **`deregister_manual`** - Remove registered manuals
-- **`search_tools`** - Find tools by description with TypeScript interfaces
-- **`list_tools`** - List all registered tool names
-- **`get_required_keys_for_tool`** - Get required environment variables
-- **`tool_info`** - Get complete tool information with TypeScript interface
-- **`call_tool_chain`** - Execute TypeScript code with direct tool access
-
-## 📁 What is UTCP?
-
-The Universal Tool Calling Protocol (UTCP) allows you to:
-- **Connect to any API** via HTTP, OpenAPI specs, or custom formats
-- **Use command-line tools** with automatic argument parsing (requires explicit CLI plugin registration)
-- **Process text and files** with built-in utilities
-- **Chain and combine** multiple tools seamlessly
-
-With this MCP bridge, all your UTCP tools become available in Claude Desktop and other MCP clients.
- 
-**Optional Protocols:** CLI requires explicit registration for security (see "Enabling CLI Support" above).
-
-## 💻 Code Mode Example
-
-The main feature of this bridge is the ability to execute TypeScript code with direct access to all registered tools:
+Example shape:
 
 ```typescript
-// Example using call_tool_chain
-const result = await call_tool_chain(`
-  // Get user data from an API
-  const user = await user_service.getUserProfile({ userId: "123" });
-  console.log('User data:', user);
-  
-  // Process the data with another tool
-  const processed = await data_processor.analyzeUserBehavior({
-    userData: user,
-    timeframe: "30days"
-  });
-  
-  // Generate a report
-  const report = await reporting.generateInsights({
-    analysis: processed,
-    format: "summary"
-  });
-  
-  return {
-    userId: user.id,
-    totalActions: processed.actionCount,
-    topInsight: report.insights[0]
-  };
-`);
+return await some_manual.some_tool({
+  query: "example"
+});
 ```
 
-**Key Benefits:**
-- **Hierarchical Access**: Use `manual.tool()` syntax to avoid naming conflicts
-- **Type Safety**: Get TypeScript interfaces for all tools via `search_tools` or `tool_info`
-- **Code Execution**: Chain multiple tool calls in a single code block
-- **Error Handling**: Proper error handling with timeout support
+You can combine multiple tool calls inside the same execution and return structured results.
 
-## 🌟 Features
+## Tool Naming
 
-- ✅ **Zero installation** - Works via npx
-- ✅ **Universal compatibility** - Works with any MCP client
-- ✅ **Dynamic configuration** - Update tools without restarting
-- ✅ **Environment isolation** - Each project can have its own config
-- ✅ **Comprehensive tool management** - Register, search, call, and inspect tools
+UTCP tools are mapped into TypeScript-friendly access paths. A tool with a UTCP name like:
 
----
+```text
+my_manual.server.echo
+```
 
-<img width="2263" height="976" alt="UTCP MCP Bridge Interface" src="https://github.com/user-attachments/assets/a6759512-1c0d-4265-9518-64916fbe1428" />
+is exposed in code-mode as a hierarchical TypeScript path derived from that name.
+
+## Notes
+
+- `stdout` is reserved for MCP stdio transport, so informational logs are redirected away from normal stdout behavior
+- The package initializes core UTCP plugins and imports HTTP, text, MCP, CLI, dotenv-loader, and file integrations
+- If the runtime is unsupported, the process exits with a clear error
+
+## Development
+
+Build:
+
+```bash
+npm run build
+```
+
+Start from source build output:
+
+```bash
+npm start
+```
+
+Dry-run package contents:
+
+```bash
+npm pack --dry-run
+```

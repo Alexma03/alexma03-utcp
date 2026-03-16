@@ -1,14 +1,15 @@
 {
   "name": "@alexma03/utcp-code-mode-mcp",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Model Context Protocol (MCP) server for UTCP Code Mode - Execute TypeScript code with direct tool access",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "mcp-bridge": "./dist/index.js"
+    "utcp-code-mode-mcp": "./bin/utcp-code-mode-mcp.js"
   },
   "files": [
-    "dist/**/*",
+    "bin",
+    "dist",
     "README.md"
   ],
   "scripts": {
@@ -51,14 +52,14 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.20.2",
-    "@alexma03/utcp-cli": "workspace:*",
-    "@alexma03/utcp-code-mode": "workspace:*",
-    "@alexma03/utcp-dotenv-loader": "workspace:*",
-    "@alexma03/utcp-file": "workspace:*",
-    "@alexma03/utcp-http": "workspace:*",
-    "@alexma03/utcp-mcp": "workspace:*",
-    "@alexma03/utcp-sdk": "workspace:*",
-    "@alexma03/utcp-text": "workspace:*",
+    "@alexma03/utcp-cli": "^1.1.1",
+    "@alexma03/utcp-code-mode": "^1.2.12",
+    "@alexma03/utcp-dotenv-loader": "^1.1.1",
+    "@alexma03/utcp-file": "^1.1.1",
+    "@alexma03/utcp-http": "^1.1.2",
+    "@alexma03/utcp-mcp": "^1.1.1",
+    "@alexma03/utcp-sdk": "^1.1.0",
+    "@alexma03/utcp-text": "^1.1.1",
     "dotenv": "16.0.0",
     "zod": "3.25.76"
   }

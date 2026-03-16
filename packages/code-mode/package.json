@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-code-mode",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "description": "Code execution mode for UTCP - enables executing TypeScript code chains with tool access using isolated-vm for security",
   "type": "module",
   "main": "dist/index.cjs",
@@ -45,7 +45,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@alexma03/utcp-sdk": "workspace:*",
+    "@alexma03/utcp-sdk": "^1.1.0",
     "isolated-vm": "6.1.2"
   },
   "peerDependenciesMeta": {
@@ -56,8 +56,8 @@
   "devDependencies": {
     "@types/jest": "29.5.12",
     "@types/node": "20.0.0",
-    "@alexma03/utcp-sdk": "workspace:*",
-    "@alexma03/utcp-direct-call": "workspace:*",
+    "@alexma03/utcp-sdk": "^1.1.0",
+    "@alexma03/utcp-direct-call": "^1.1.1",
     "isolated-vm": "6.1.2",
     "jest": "29.7.0",
     "ts-jest": "29.1.2",

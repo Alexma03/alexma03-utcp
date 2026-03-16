@@ -54,7 +54,7 @@
     "@alexma03/utcp-sdk": "^1.1.0"
   },
   "devDependencies": {
-    "@alexma03/utcp-sdk": "workspace:*",
+    "@alexma03/utcp-sdk": "^1.1.0",
     "@types/bun": "latest",
     "@types/json-schema": "^7.0.15",
     "bun-types": "latest",

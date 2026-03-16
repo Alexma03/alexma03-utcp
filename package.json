@@ -15,6 +15,10 @@
     "build:core": "pnpm --filter @alexma03/utcp-sdk build",
     "build:plugins": "pnpm --filter @alexma03/utcp-http --filter @alexma03/utcp-mcp --filter @alexma03/utcp-text --filter @alexma03/utcp-file --filter @alexma03/utcp-cli --filter @alexma03/utcp-dotenv-loader --filter @alexma03/utcp-direct-call build",
     "build:products": "pnpm --filter @alexma03/utcp-code-mode --filter @alexma03/utcp-code-mode-mcp build",
+    "sync-internal-deps": "node scripts/sync-internal-deps.mjs",
+    "bump-package": "node scripts/bump-package-version.mjs",
+    "publish-changed": "node scripts/publish-changed-packages.mjs",
+    "publish-changed:dry-run": "node scripts/publish-changed-packages.mjs --dry-run",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
