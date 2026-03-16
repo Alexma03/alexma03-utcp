@@ -1,6 +1,6 @@
-# @utcp/mcp: Model Context Protocol (MCP) Communication Protocol Plugin for UTCP
+# @alexma03/utcp-mcp: Model Context Protocol (MCP) Communication Protocol Plugin for UTCP
 
-The `@utcp/mcp` package enables the `UtcpClient` to interact with tools defined and served via the Model Context Protocol (MCP). This plugin provides interoperability with existing MCP servers, supporting both `stdio` (local process) and `http` (streamable HTTP) transports, with enhanced session management and resilience.
+The `@alexma03/utcp-mcp` package enables the `UtcpClient` to interact with tools defined and served via the Model Context Protocol (MCP). This plugin provides interoperability with existing MCP servers, supporting both `stdio` (local process) and `http` (streamable HTTP) transports, with enhanced session management and resilience.
 
 ## Features
 
@@ -23,23 +23,23 @@ The `@utcp/mcp` package enables the `UtcpClient` to interact with tools defined 
 ## Installation
 
 ```bash
-bun add @utcp/mcp @utcp/sdk
+bun add @alexma03/utcp-mcp @alexma03/utcp-sdk
 
 # Or using npm
-npm install @utcp/mcp @utcp/sdk
+npm install @alexma03/utcp-mcp @alexma03/utcp-sdk
 ```
 
-Note: `@utcp/sdk` is a peer dependency. The MCP SDK dependencies (`@modelcontextprotocol/sdk` and `axios`) are included automatically.
+Note: `@alexma03/utcp-sdk` is a peer dependency. The MCP SDK dependencies (`@modelcontextprotocol/sdk` and `axios`) are included automatically.
 
 ## Usage
 
-The MCP plugin registers automatically when you import it—no manual registration needed. Simply import from `@utcp/mcp` to enable MCP support.
+The MCP plugin registers automatically when you import it—no manual registration needed. Simply import from `@alexma03/utcp-mcp` to enable MCP support.
 
 ```typescript
 // From your application's entry point
 
-import { UtcpClient } from '@utcp/sdk';
-import { McpCallTemplateSerializer } from '@utcp/mcp';
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import { McpCallTemplateSerializer } from '@alexma03/utcp-mcp';
 import * as path from 'path';
 
 async function main() {

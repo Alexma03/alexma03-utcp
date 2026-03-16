@@ -32,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/code-mode-mcp"
   },
   "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",

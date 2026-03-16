@@ -30,7 +30,8 @@
     "access": "public"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -41,15 +42,19 @@
     }
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^15.1.2",
     "@modelcontextprotocol/sdk": "^1.17.4",
-    "@alexma03/utcp-sdk": "workspace:*",
     "axios": "^1.11.0"
   },
+  "peerDependencies": {
+    "@alexma03/utcp-sdk": "^1.1.0"
+  },
   "devDependencies": {
+    "@alexma03/utcp-sdk": "workspace:*",
     "@types/bun": "latest",
     "@types/json-schema": "^7.0.15",
     "bun-types": "latest",

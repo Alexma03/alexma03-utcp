@@ -10,7 +10,7 @@
   "author": "Alexma03",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/code-mode"
   },
   "keywords": [
