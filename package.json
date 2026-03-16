@@ -1,0 +1,22 @@
+{
+  "name": "alexma03-utcp",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "@types/js-yaml": "^4.0.9",
+    "@changesets/cli": "^2.29.7",
+    "tsup": "^8.5.0",
+    "zod": "^3.25.76"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "build:core": "pnpm --filter @alexma03/utcp-sdk build",
+    "build:plugins": "pnpm --filter @alexma03/utcp-http --filter @alexma03/utcp-mcp --filter @alexma03/utcp-text --filter @alexma03/utcp-file --filter @alexma03/utcp-cli --filter @alexma03/utcp-dotenv-loader --filter @alexma03/utcp-direct-call build",
+    "build:products": "pnpm --filter @alexma03/utcp-code-mode --filter @alexma03/utcp-code-mode-mcp build",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
+  }
+}

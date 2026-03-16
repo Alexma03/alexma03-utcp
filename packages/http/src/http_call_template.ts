@@ -1,0 +1,80 @@
+// packages/http/src/http_call_template.ts
+import { z } from 'zod';
+import { Auth, AuthSchema, AuthSerializer } from '@alexma03/utcp-sdk';
+import { CallTemplate } from '@alexma03/utcp-sdk';
+import { Serializer } from '@alexma03/utcp-sdk';
+
+/**
+ * REQUIRED
+ * Provider configuration for HTTP-based tools.
+ *
+ * Supports RESTful HTTP/HTTPS APIs with various HTTP methods, authentication,
+ * custom headers, and flexible request/response handling. Supports URL path
+ * parameters using {parameter_name} syntax.
+ */
+
+export interface HttpCallTemplate extends CallTemplate {
+  call_template_type: 'http';
+  http_method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  url: string;
+  content_type: string;
+  headers?: Record<string, string>;
+  body_field?: string;
+  header_fields?: string[];
+  auth_tools?: Auth | null;
+  allowed_communication_protocols?: string[];
+}
+
+/**
+ * HTTP Call Template schema for RESTful HTTP/HTTPS API tools.
+ * Extends the base CallTemplate and defines HTTP-specific configuration.
+ */
+export const HttpCallTemplateSchema: z.ZodType<HttpCallTemplate> = z.object({
+  name: z.string().optional(),
+  call_template_type: z.literal('http'),
+  http_method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']).default('GET'),
+  url: z.string().describe('The base URL for the HTTP endpoint. Supports path parameters like "https://api.example.com/users/{user_id}".'),
+  content_type: z.string().default('application/json').describe('The Content-Type header for requests.'),
+  auth: AuthSchema.optional().describe('Optional authentication configuration.'),
+  headers: z.record(z.string(), z.string()).optional().describe('Optional static headers to include in all requests.'),
+  body_field: z.string().optional().default('body').describe('The name of the single input field to be sent as the request body.'),
+  header_fields: z.array(z.string()).optional().describe('List of input fields to be sent as request headers.'),
+  auth_tools: AuthSchema.nullable().optional().transform((val) => {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'object' && 'auth_type' in val) {
+      return new AuthSerializer().validateDict(val as any);
+    }
+    return val as Auth;
+  }).describe('Authentication configuration for generated tools'),
+  allowed_communication_protocols: z.array(z.string()).optional().describe('Optional list of allowed communication protocol types for tools within this manual.'),
+}) as z.ZodType<HttpCallTemplate>;
+
+/**
+ * REQUIRED
+ * Serializer for HttpCallTemplate.
+ */
+export class HttpCallTemplateSerializer extends Serializer<HttpCallTemplate> {
+  toDict(obj: HttpCallTemplate): Record<string, unknown> {
+    return {
+      name: obj.name,
+      call_template_type: obj.call_template_type,
+      http_method: obj.http_method,
+      url: obj.url,
+      content_type: obj.content_type,
+      auth: obj.auth,
+      auth_tools: obj.auth_tools ? new AuthSerializer().toDict(obj.auth_tools) : null,
+      headers: obj.headers,
+      body_field: obj.body_field,
+      header_fields: obj.header_fields,
+      allowed_communication_protocols: obj.allowed_communication_protocols,
+    };
+  }
+
+  validateDict(obj: Record<string, unknown>): HttpCallTemplate {
+    try {
+      return HttpCallTemplateSchema.parse(obj);
+    } catch (e: any) {
+      throw new Error(`Invalid HttpCallTemplate: ${e.message}\n${e.stack || ''}`);
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "declaration": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@alexma03/utcp-sdk": ["packages/sdk/src"],
+      "@alexma03/utcp-sdk/*": ["packages/sdk/src/*"],
+      "@alexma03/utcp-http": ["packages/http/src"],
+      "@alexma03/utcp-http/*": ["packages/http/src/*"],
+      "@alexma03/utcp-mcp": ["packages/mcp/src"],
+      "@alexma03/utcp-mcp/*": ["packages/mcp/src/*"],
+      "@alexma03/utcp-text": ["packages/text/src"],
+      "@alexma03/utcp-text/*": ["packages/text/src/*"],
+      "@alexma03/utcp-cli": ["packages/cli/src"],
+      "@alexma03/utcp-cli/*": ["packages/cli/src/*"],
+      "@alexma03/utcp-file": ["packages/file/src"],
+      "@alexma03/utcp-file/*": ["packages/file/src/*"],
+      "@alexma03/utcp-direct-call": ["packages/direct-call/src"],
+      "@alexma03/utcp-direct-call/*": ["packages/direct-call/src/*"],
+      "@alexma03/utcp-dotenv-loader": ["packages/dotenv-loader/src"],
+      "@alexma03/utcp-dotenv-loader/*": ["packages/dotenv-loader/src/*"],
+      "@alexma03/utcp-code-mode": ["packages/code-mode/src"],
+      "@alexma03/utcp-code-mode/*": ["packages/code-mode/src/*"]
+    },
+    "outDir": "dist",
+    "composite": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "packages/**/src/**/*",
+    "packages/**/tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

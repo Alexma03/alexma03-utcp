@@ -1,0 +1,70 @@
+// packages/text/src/text_call_template.ts
+import { z } from 'zod';
+import { CallTemplate, Auth, AuthSchema, AuthSerializer } from '@alexma03/utcp-sdk';
+import { Serializer } from '@alexma03/utcp-sdk';
+
+/**
+ * Text call template for UTCP client.
+ *
+ * This template allows passing UTCP manuals or tool definitions directly as text content.
+ * It supports both JSON and YAML formats and can convert OpenAPI specifications to UTCP manuals.
+ *
+ * Attributes:
+ *     call_template_type: Always "text" for text call templates.
+ *     content: Direct text content of the UTCP manual or tool definitions (required).
+ *     base_url: Optional base URL for API endpoints when converting OpenAPI specs. Overrides spec's server configuration.
+ *     auth: Always undefined - text call templates don't support authentication.
+ *     auth_tools: Optional authentication to apply to generated tools from OpenAPI specs.
+ */
+export interface TextCallTemplate extends CallTemplate {
+  call_template_type: 'text';
+  content: string;
+  base_url?: string;
+  auth?: undefined;
+  auth_tools?: Auth | null;
+  allowed_communication_protocols?: string[];
+}
+
+/**
+ * Zod schema for TextCallTemplate.
+ */
+export const TextCallTemplateSchema: z.ZodType<TextCallTemplate> = z.object({
+  name: z.string().optional(),
+  call_template_type: z.literal('text'),
+  content: z.string().describe('Direct text content of the UTCP manual or tool definitions'),
+  base_url: z.string().optional().describe('Optional base URL for API endpoints when converting OpenAPI specs'),
+  auth: z.undefined().optional(),
+  auth_tools: AuthSchema.nullable().optional().transform((val) => {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'object' && 'auth_type' in val) {
+      return new AuthSerializer().validateDict(val as any);
+    }
+    return val as Auth;
+  }).describe('Optional authentication to apply to generated tools from OpenAPI specs'),
+  allowed_communication_protocols: z.array(z.string()).optional().describe('Optional list of allowed communication protocol types for tools within this manual.'),
+}).strict() as z.ZodType<TextCallTemplate>;
+
+/**
+ * Serializer for TextCallTemplate objects.
+ */
+export class TextCallTemplateSerializer extends Serializer<TextCallTemplate> {
+  toDict(obj: TextCallTemplate): Record<string, unknown> {
+    return {
+      name: obj.name,
+      call_template_type: obj.call_template_type,
+      content: obj.content,
+      base_url: obj.base_url,
+      auth: obj.auth,
+      auth_tools: obj.auth_tools ? new AuthSerializer().toDict(obj.auth_tools) : null,
+      allowed_communication_protocols: obj.allowed_communication_protocols,
+    };
+  }
+
+  validateDict(obj: Record<string, unknown>): TextCallTemplate {
+    try {
+      return TextCallTemplateSchema.parse(obj);
+    } catch (e: any) {
+      throw new Error(`Invalid TextCallTemplate: ${e.message}\n${e.stack || ''}`);
+    }
+  }
+}

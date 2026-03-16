@@ -1,0 +1,56 @@
+{
+  "name": "@alexma03/utcp-direct-call",
+  "version": "1.1.1",
+  "description": "Direct callable functions plugin for UTCP",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "license": "MPL-2.0",
+  "author": "Alexma03",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "directory": "packages/direct-call"
+  },
+  "keywords": [
+    "utcp",
+    "universal-tool-calling-protocol",
+    "tools",
+    "api",
+    "typescript",
+    "tool calling",
+    "direct-call",
+    "callable",
+    "agent",
+    "ai",
+    "llm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@alexma03/utcp-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@alexma03/utcp-sdk": "workspace:*",
+    "bun-types": "latest",
+    "typescript": "^5.0.0",
+    "@types/bun": "latest"
+  }
+}

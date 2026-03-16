@@ -1,0 +1,65 @@
+{
+  "name": "@alexma03/utcp-code-mode-mcp",
+  "version": "1.2.0",
+  "description": "Model Context Protocol (MCP) server for UTCP Code Mode - Execute TypeScript code with direct tool access",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-bridge": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "utcp",
+    "mcp",
+    "code-mode",
+    "typescript",
+    "model-context-protocol",
+    "universal-tool-calling-protocol",
+    "bridge",
+    "tools",
+    "ai",
+    "code-execution"
+  ],
+  "author": "Alexma03",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "directory": "packages/code-mode-mcp"
+  },
+  "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alexma03/alexma03-utcp/issues"
+  },
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "5.0.4"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.20.2",
+    "@alexma03/utcp-cli": "workspace:*",
+    "@alexma03/utcp-code-mode": "workspace:*",
+    "@alexma03/utcp-dotenv-loader": "workspace:*",
+    "@alexma03/utcp-file": "workspace:*",
+    "@alexma03/utcp-http": "workspace:*",
+    "@alexma03/utcp-mcp": "workspace:*",
+    "@alexma03/utcp-sdk": "workspace:*",
+    "@alexma03/utcp-text": "workspace:*",
+    "dotenv": "16.0.0",
+    "zod": "3.25.76"
+  }
+}
