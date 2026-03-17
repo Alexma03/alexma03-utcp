@@ -136,12 +136,13 @@ export class CliCommunicationProtocol implements CommunicationProtocol {
    * @param toolArgs Dictionary of argument names and values
    * @returns Command string with placeholders replaced by actual values
    */
-  private _substitute_utcp_args(command: string, toolArgs: Record<string, any>): string {
+  private _substitute_utcp_args(
+    command: string,
+    toolArgs: Record<string, any>,
+  ): string {
     const pattern = /UTCP_ARG_([a-zA-Z0-9_]+?)_UTCP_END/g;
     return command.replace(pattern, (match, argName) => {
       if (argName in toolArgs) {
-        // Return the raw value. The shell will handle it correctly when it's inside quotes
-        // in the final command (e.g., echo "Initial message: Workflow Argument").
         return String(toolArgs[argName]);
       }
       this._log_error(`Missing argument '${argName}' for placeholder in command: ${command}`);
@@ -185,7 +186,18 @@ export class CliCommunicationProtocol implements CommunicationProtocol {
         scriptLines.push(`\$${varName} = ${substitutedCommand} 2>&1 | Out-String`);
       } else {
         // Unix shell - capture command output in variable
-        scriptLines.push(`${varName}=$(${substitutedCommand} 2>&1)`);
+        const tempFileVar = `CMD_${i}_OUTPUT_FILE`;
+        const exitCodeVar = `CMD_${i}_EXIT_CODE`;
+        scriptLines.push(`${tempFileVar}=$(mktemp)`);
+        scriptLines.push(`{ ${substitutedCommand}; } >"\$${tempFileVar}" 2>&1`);
+        scriptLines.push(`${exitCodeVar}=$?`);
+        scriptLines.push(`if [ "\$${exitCodeVar}" -ne 0 ]; then`);
+        scriptLines.push(`  cat "\$${tempFileVar}" >&2`);
+        scriptLines.push(`  rm -f "\$${tempFileVar}"`);
+        scriptLines.push(`  exit "\$${exitCodeVar}"`);
+        scriptLines.push(`fi`);
+        scriptLines.push(`${varName}=$(cat "\$${tempFileVar}")`);
+        scriptLines.push(`rm -f "\$${tempFileVar}"`);
       }
     }
 

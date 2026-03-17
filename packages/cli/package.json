@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "CLI utilities for UTCP",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -12,6 +12,10 @@
     "type": "git",
     "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alexma03/alexma03-utcp/issues"
   },
   "keywords": [
     "utcp",
@@ -29,10 +33,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test": "jest"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -43,11 +49,13 @@
     }
   },
   "dependencies": {
-    "@alexma03/utcp-sdk": "^1.1.0"
+    "@alexma03/utcp-sdk": "^1.1.1"
   },
   "devDependencies": {
-    "bun-types": "latest",
-    "typescript": "^5.0.0",
-    "@types/bun": "latest"
+    "@types/jest": "29.5.12",
+    "@types/node": "20.0.0",
+    "jest": "29.7.0",
+    "ts-jest": "29.1.2",
+    "typescript": "^5.0.0"
   }
 }

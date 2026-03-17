@@ -1,9 +1,8 @@
 // packages/http/tests/http_communication_protocol.test.ts
-import { test, expect, describe, beforeAll, afterAll } from "bun:test";
 import express, { Express } from 'express';
 import { Server } from 'http';
 // Import from package index to trigger auto-registration
-import { HttpCommunicationProtocol, HttpCallTemplate } from "@alexma03/utcp-http";
+import { HttpCommunicationProtocol, HttpCallTemplate } from "../src/index";
 import { ApiKeyAuth, BasicAuth, OAuth2Auth } from "@alexma03/utcp-sdk";
 import { IUtcpClient } from "@alexma03/utcp-sdk";
 
@@ -92,6 +91,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/utcp`,
         http_method: "GET",
+        content_type: "application/json",
       };
 
       const result = await protocol.registerManual(mockClient, callTemplate);
@@ -106,6 +106,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/error`,
         http_method: "GET",
+        content_type: "application/json",
       };
 
       const result = await protocol.registerManual(mockClient, callTemplate);
@@ -121,6 +122,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/tool`,
         http_method: "POST",
+        content_type: "application/json",
         body_field: "data"
       };
 
@@ -134,6 +136,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/tool/{param1}/{param2}`,
         http_method: "GET",
+        content_type: "application/json",
       };
 
       const result = await protocol.callTool(
@@ -152,6 +155,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/tool`,
         http_method: "POST",
+        content_type: "application/json",
         auth: auth
       };
       const result = await protocol.callTool(mockClient, "test.tool", {}, callTemplate);
@@ -165,6 +169,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/tool`,
         http_method: "POST",
+        content_type: "application/json",
         auth: auth
       };
       const result = await protocol.callTool(mockClient, "test.tool", {}, callTemplate);
@@ -183,6 +188,7 @@ describe("HttpCommunicationProtocol", () => {
         call_template_type: "http",
         url: `http://localhost:${serverPort}/tool`,
         http_method: "POST",
+        content_type: "application/json",
         auth: auth
       };
       const result = await protocol.callTool(mockClient, "test.tool", {}, callTemplate);

@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-direct-call",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Direct callable functions plugin for UTCP",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -10,8 +10,12 @@
   "author": "Alexma03",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/direct-call"
+  },
+  "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alexma03/alexma03-utcp/issues"
   },
   "keywords": [
     "utcp",
@@ -30,10 +34,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test": "jest"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -45,12 +51,14 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@alexma03/utcp-sdk": "^1.1.0"
+    "@alexma03/utcp-sdk": "^1.1.1"
   },
   "devDependencies": {
-    "@alexma03/utcp-sdk": "^1.1.0",
-    "bun-types": "latest",
-    "typescript": "^5.0.0",
-    "@types/bun": "latest"
+    "@alexma03/utcp-sdk": "^1.1.1",
+    "@types/jest": "29.5.12",
+    "@types/node": "20.0.0",
+    "jest": "29.7.0",
+    "ts-jest": "29.1.2",
+    "typescript": "^5.0.0"
   }
 }

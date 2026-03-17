@@ -1,4 +1,4 @@
-# @utcp/dotenv-loader
+# @alexma03/utcp-dotenv-loader
 
 DotEnv Variable Loader plugin for the Universal Tool Calling Protocol (UTCP).
 
@@ -9,7 +9,7 @@ This plugin provides support for loading environment variables from `.env` files
 ## Installation
 
 ```bash
-npm install @utcp/dotenv-loader
+npm install @alexma03/utcp-dotenv-loader
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ npm install @utcp/dotenv-loader
 The plugin automatically registers itself when imported:
 
 ```typescript
-import '@utcp/dotenv-loader';
-import { UtcpClient } from '@utcp/sdk';
+import '@alexma03/utcp-dotenv-loader';
+import { UtcpClient } from '@alexma03/utcp-sdk';
 
 // Now you can use dotenv variable loaders in your UTCP configuration
 const config = {

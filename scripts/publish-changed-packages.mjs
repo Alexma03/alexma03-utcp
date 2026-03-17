@@ -30,7 +30,7 @@ if (dryRun) {
 }
 
 for (const pkg of changedPackages) {
-  const result = spawnSync('npm', ['publish', '--access', 'public'], {
+  const result = spawnSync('pnpm', ['publish', '--access', 'public', '--no-git-checks'], {
     cwd: pkg.dir,
     stdio: 'inherit'
   });

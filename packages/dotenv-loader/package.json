@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-dotenv-loader",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "DotEnv Variable Loader plugin for UTCP",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -10,8 +10,12 @@
   "author": "Alexma03",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/dotenv-loader"
+  },
+  "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alexma03/alexma03-utcp/issues"
   },
   "keywords": [
     "utcp",
@@ -44,10 +48,10 @@
     "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "@alexma03/utcp-sdk": "^1.1.0"
+    "@alexma03/utcp-sdk": "^1.1.1"
   },
   "devDependencies": {
-    "bun-types": "latest",
+    "@types/node": "20.0.0",
     "typescript": "^5.0.0"
   }
 }

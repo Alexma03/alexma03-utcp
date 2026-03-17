@@ -3,7 +3,7 @@ description: publicar paquetes UTCP en npm
 ---
 # Publicar paquetes UTCP en npm
 
-Usa este workflow para publicar `@alexma03/utcp-code-mode-mcp` o todo el monorepo en npm usando los scripts del repo o `npm publish` directo por paquete.
+Usa este workflow para publicar `@alexma03/utcp-code-mode-mcp` o todo el monorepo en npm usando los scripts del repo o `pnpm publish` directo por paquete.
 
 ## 1. Verifica versión y metadatos
 
@@ -39,7 +39,7 @@ pnpm sync-internal-deps
 Para un paquete concreto, ejecuta:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 En el directorio del paquete.
@@ -49,7 +49,7 @@ En el directorio del paquete.
 Ejecuta:
 
 ```bash
-npm pack --dry-run
+pnpm pack --dry-run
 ```
 
 Comprueba que incluya los archivos esperados como `dist` y `README.md`.
@@ -59,7 +59,7 @@ Comprueba que incluya los archivos esperados como `dist` y `README.md`.
 Ejemplo para `code-mode-mcp`:
 
 ```bash
-npm publish --access public
+pnpm publish --access public --no-git-checks
 ```
 
 Ejecutar en:
@@ -92,7 +92,7 @@ Este script:
 
 ## 7. Publicar todo el monorepo manualmente
 
-Publica los paquetes uno por uno con `npm publish --access public` usando el directorio de cada paquete como `cwd`.
+Publica los paquetes uno por uno con `pnpm publish --access public --no-git-checks` usando el directorio de cada paquete como `cwd`.
 
 Orden recomendado:
 
@@ -130,5 +130,5 @@ Ejemplo para Windsurf:
 
 - Si falla por versión existente, incrementa `version`
 - Si falla por `bin`, corrige `package.json` y vuelve a empaquetar
-- Si falla por autenticación, repite el `npm publish` y completa el flujo web de npm
+- Si falla por autenticación, repite el `pnpm publish` y completa el flujo web de npm
 - Si falla con `changeset publish`, usa publicación manual paquete por paquete

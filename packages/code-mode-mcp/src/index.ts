@@ -1,44 +1,33 @@
 #!/usr/bin/env node
 
-// UTCP-MCP Bridge Entry Point
-// This is the main entry point for the npx @alexma03/utcp-mcp-bridge command
-
 import util from "util";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import path from "path";
+import path, { dirname } from "path";
 import { promises as fs } from "fs";
-import { parse as parseDotEnv } from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
 
 import "@alexma03/utcp-http";
 import "@alexma03/utcp-text";
 import "@alexma03/utcp-mcp";
 import "@alexma03/utcp-cli";
-import "@alexma03/utcp-dotenv-loader"
-import "@alexma03/utcp-file"
+import "@alexma03/utcp-dotenv-loader";
+import "@alexma03/utcp-file";
 
 import {
-    UtcpClient,
     CallTemplateSchema,
-    InMemConcurrentToolRepository,
-    TagSearchStrategy,
-    DefaultVariableSubstitutor,
     ensureCorePluginsInitialized,
     UtcpClientConfigSerializer
 } from "@alexma03/utcp-sdk";
-import type { UtcpClientConfig } from "@alexma03/utcp-sdk";
-import { CodeModeUtcpClient } from "@alexma03/utcp-code-mode";
+import { CodeModeExecutionError, CodeModeUtcpClient } from "@alexma03/utcp-code-mode";
 import { ContentBlock, ContentBlockSchema } from "@modelcontextprotocol/sdk/types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Override info and warn logs in simple manner to keep compatibility with MCP stdio transport
-console.log = (...args: any[]) => { process.stderr.write(util.format(...args) + '\n'); }
-console.warn = (...args: any[]) => { process.stderr.write(util.format(...args) + '\n'); }
+console.log = (...args: any[]) => { process.stderr.write(util.format(...args) + '\n'); };
+console.warn = (...args: any[]) => { process.stderr.write(util.format(...args) + '\n'); };
 
 ensureCorePluginsInitialized();
 
@@ -93,18 +82,12 @@ const mcp = new McpServer({
     version: "1.0.0",
 });
 
-/**
- * Sanitizes an identifier to be a valid TypeScript identifier.
- */
 function sanitizeIdentifier(name: string): string {
     return name
         .replace(/[^a-zA-Z0-9_]/g, '_')
         .replace(/^[0-9]/, '_$&');
 }
 
-/**
- * Converts a UTCP tool name to its TypeScript interface name.
- */
 function utcpNameToTsInterfaceName(utcpName: string): string {
     if (utcpName.includes('.')) {
         const parts = utcpName.split('.');
@@ -113,34 +96,28 @@ function utcpNameToTsInterfaceName(utcpName: string): string {
         const sanitizedManualName = sanitizeIdentifier(manualName);
         const toolName = toolParts.map(part => sanitizeIdentifier(part)).join('_');
         return `${sanitizedManualName}.${toolName}`;
-    } else {
-        return sanitizeIdentifier(utcpName);
     }
+
+    return sanitizeIdentifier(utcpName);
 }
 
-/**
- * Finds a tool by either UTCP name or TypeScript interface name.
- */
 async function findToolByName(client: CodeModeUtcpClient, name: string): Promise<{ tool: any, utcpName: string } | null> {
-    // First, try direct lookup by UTCP name
     const directTool = await client.config.tool_repository.getTool(name);
     if (directTool) {
         return { tool: directTool, utcpName: name };
     }
-    
-    // If not found, search through all tools to find one whose TS interface name matches
+
     const allTools = await client.config.tool_repository.getTools();
     for (const tool of allTools) {
         if (utcpNameToTsInterfaceName(tool.name) === name) {
             return { tool, utcpName: tool.name };
         }
     }
-    
+
     return null;
 }
 
 function setupMcpTools() {
-    // Register MCP prompt for using the code mode server
     mcp.registerPrompt("utcp_codemode_usage", {
         title: "UTCP Code Mode Usage Guide",
         description: "Comprehensive guide on how to use the UTCP Code Mode MCP server for executing TypeScript code with tool access."
@@ -155,7 +132,7 @@ You have access to a powerful UTCP Code Mode MCP server that allows you to execu
 **Always start by searching for relevant tools before writing code:**
 - Use \`search_tools\` with a description of your task to find relevant tools
 - This returns tools with their TypeScript interfaces - study these carefully
-- Use \`tool_info\` to get detailed interface information for specific tools if needed
+- Use \`tools_info\` to get detailed interface information for specific tools if needed
 
 ${CodeModeUtcpClient.AGENT_PROMPT_TEMPLATE}
 
@@ -256,7 +233,7 @@ Remember: The power of this system comes from combining multiple tools in sophis
             const variables = await client.getRequiredVariablesForRegisteredTool(found.utcpName);
             return { content: [{ type: "text", text: JSON.stringify({ success: true, tool_name: input.tool_name, required_variables: variables }) }] };
         } catch (e: any) {
-            return {isError: true, content: [{ type: "text", text: JSON.stringify({ tool_name: input.tool_name, error: e.message }) }] };
+            return { isError: true, content: [{ type: "text", text: JSON.stringify({ tool_name: input.tool_name, error: e.message }) }] };
         }
     });
 
@@ -282,19 +259,18 @@ Remember: The power of this system comes from combining multiple tools in sophis
 
             if (typescriptInterfaces.length === 0 && infos.length > 0) {
                 return { isError: true, content: [{ type: "text", text: infos.join("\n\n") }] };
-            } else {
-                let fullContent = typescriptInterfaces.join("\n\n");
-                if (infos.length > 0) {
-                    fullContent += "\n\n" + infos.join("\n");
-                }
-                return { content: [{ type: "text", text: fullContent }] };
             }
+
+            let fullContent = typescriptInterfaces.join("\n\n");
+            if (infos.length > 0) {
+                fullContent += "\n\n" + infos.join("\n");
+            }
+            return { content: [{ type: "text", text: fullContent }] };
         } catch (e: any) {
             return { isError: true, content: [{ type: "text", text: e.message }] };
         }
     });
 
-    // Code Mode specific tools
     mcp.registerTool("call_tool_chain", {
         title: "Execute TypeScript Code with Tool Access",
         description: "Execute TypeScript code with direct access to all registered tools as hierarchical functions (e.g., manual.tool()).",
@@ -307,7 +283,7 @@ Remember: The power of this system comes from combining multiple tools in sophis
         const client = await initializeUtcpClient();
         try {
             const { result, logs } = await client.callToolChain(input.code, input.timeout);
-            
+
             function truncateText(text: string): string {
                 if (text.length <= input.max_output_size) {
                     return text;
@@ -315,43 +291,35 @@ Remember: The power of this system comes from combining multiple tools in sophis
                 return text.slice(0, input.max_output_size) + "...\nmax_output_size exceeded";
             }
 
-            let content: Array<ContentBlock> = new Array<ContentBlock>();
-            let processedResult: Array<any> = new Array<any>();
+            const content: Array<ContentBlock> = [];
+            const processedResult: Array<any> = [];
 
-            // Handle MCP response content blocks
-            // Based on logic from McpCommunicationProtocol._processMcpToolResult
-
-            let mcpContentFound = false;
-            // Case 1: content blocks passed as an array (when more than one)
             if (Array.isArray(result)) {
                 for (const item of result) {
                     if (ContentBlockSchema.safeParse(item).success) {
                         content.push(item as ContentBlock);
-                        mcpContentFound = true;
                     } else {
-                        // Text blocks are returned as plain object or string
                         processedResult.push(item);
                     }
                 }
-            // Case 2: when a single content block is returned, it passed directly
             } else if (ContentBlockSchema.safeParse(result).success) {
                 content.push(result as ContentBlock);
-                mcpContentFound = true;
-            // Case 3: result is not a content block - it's either text or structured data or not MCP content at all
             } else {
                 processedResult.push(result);
             }
-            
+
             const plainContent: any = processedResult.length > 1 ? processedResult : processedResult[0];
-            const jsonContent: string = JSON.stringify({ success: true, nonMcpContentResults: plainContent, logs });
+            const jsonContent = JSON.stringify({ success: true, nonMcpContentResults: plainContent, logs });
             content.push({ type: "text", text: truncateText(jsonContent) });
 
-            return { content: content };
+            return { content };
         } catch (e: any) {
-            return { isError: true, content: [{ type: "text", text: e.message }] };
+            const text = e instanceof CodeModeExecutionError
+                ? JSON.stringify({ success: false, error: e.message, logs: e.logs })
+                : e.message;
+            return { isError: true, content: [{ type: "text", text }] };
         }
     });
-
 }
 
 async function initializeUtcpClient(): Promise<CodeModeUtcpClient> {
@@ -359,28 +327,25 @@ async function initializeUtcpClient(): Promise<CodeModeUtcpClient> {
         return utcpClient;
     }
 
-    // Look for config file: 1) Environment variable, 2) Current working directory, 3) Package directory
     const cwd = process.cwd();
-    const packageDir = __dirname;
-    
+    const packageDir = path.resolve(__dirname, "..");
+
     let configPath: string;
     let scriptDir: string;
-    
-    // Check if UTCP_CONFIG_FILE environment variable is set
+
     if (process.env.UTCP_CONFIG_FILE) {
         configPath = path.resolve(process.env.UTCP_CONFIG_FILE);
         scriptDir = path.dirname(configPath);
-        
+
         try {
             await fs.access(configPath);
         } catch {
             console.warn(`UTCP config file specified in UTCP_CONFIG_FILE not found: ${configPath}`);
         }
     } else {
-        // Fall back to current working directory first, then package directory
         configPath = path.resolve(cwd, '.utcp_config.json');
         scriptDir = cwd;
-        
+
         try {
             await fs.access(configPath);
         } catch {
@@ -400,16 +365,11 @@ async function initializeUtcpClient(): Promise<CodeModeUtcpClient> {
     }
 
     const clientConfig = new UtcpClientConfigSerializer().validateDict(rawConfig);
-
-    const baseClient = await UtcpClient.create(scriptDir, clientConfig);
-    const newClient = Object.setPrototypeOf(baseClient, CodeModeUtcpClient.prototype) as CodeModeUtcpClient;
-    (newClient as any).toolFunctionCache = new Map();
-
-    utcpClient = newClient;
+    utcpClient = await CodeModeUtcpClient.create(scriptDir, clientConfig);
     return utcpClient;
 }
 
 main().catch(err => {
-    console.error("Failed to start UTCP-MCP Bridge:", err);
+    console.error("Failed to start UTCP Code Mode MCP:", err);
     process.exit(1);
 });

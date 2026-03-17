@@ -1,13 +1,13 @@
 // packages/mcp/tests/mcp_communication_protocol.test.ts
-import { test, expect, beforeAll, afterAll, describe } from "bun:test";
-import { Subprocess } from "bun";
+import { spawn, spawnSync, ChildProcess } from "child_process";
+import { Readable } from "stream";
 import path from "path";
 import { McpCommunicationProtocol, McpCallTemplate } from "../src/index";
 import { IUtcpClient } from "@alexma03/utcp-sdk";
 
 const HTTP_PORT = 9999;
-let stdioServerProcess: Subprocess | null = null;
-let httpServerProcess: Subprocess | null = null;
+let stdioServerProcess: ChildProcess | null = null;
+let httpServerProcess: ChildProcess | null = null;
 
 const mockClient = {} as IUtcpClient;
 
@@ -18,9 +18,9 @@ const cleanupProcesses = () => {
   if (stdioServerProcess && stdioServerProcess.pid) {
     try {
       if (isWindows) {
-        Bun.spawnSync(["taskkill", "/F", "/T", "/PID", stdioServerProcess.pid.toString()]);
+        spawnSync("taskkill", ["/F", "/T", "/PID", stdioServerProcess.pid.toString()]);
       } else {
-        stdioServerProcess.kill(9);
+        stdioServerProcess.kill("SIGKILL");
       }
     } catch (e) {
       // Ignore errors
@@ -30,9 +30,9 @@ const cleanupProcesses = () => {
   if (httpServerProcess && httpServerProcess.pid) {
     try {
       if (isWindows) {
-        Bun.spawnSync(["taskkill", "/F", "/T", "/PID", httpServerProcess.pid.toString()]);
+        spawnSync("taskkill", ["/F", "/T", "/PID", httpServerProcess.pid.toString()]);
       } else {
-        httpServerProcess.kill(9);
+        httpServerProcess.kill("SIGKILL");
       }
     } catch (e) {
       // Ignore errors
@@ -51,48 +51,78 @@ process.on('SIGTERM', () => {
   process.exit(143);
 });
 
-const awaitServerReady = async (stream: ReadableStream<Uint8Array>, readyMessage: string, timeout = 20000) => {
-  const reader = stream.getReader();
-  const start = Date.now();
-  let output = "";
+const awaitServerReady = (stream: Readable, readyMessage: string, timeout = 20000): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    let output = "";
+    let settled = false;
 
-  try {
-    while (Date.now() - start < timeout) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = new TextDecoder().decode(value);
-      output += chunk;
+    const cleanup = () => {
+      clearTimeout(timer);
+      stream.off("data", onData);
+      stream.off("error", onError);
+      stream.off("end", onEnd);
+    };
+
+    const settleResolve = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    };
+
+    const settleReject = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+
+    const timer = setTimeout(() => {
+      settleReject(new Error(`Server did not emit ready message "${readyMessage}" in time. Full output:\n${output}`));
+    }, timeout);
+
+    const onData = (chunk: Buffer) => {
+      output += chunk.toString();
       if (output.includes(readyMessage)) {
         console.log(`Server ready message found: "${readyMessage}"`);
-        return;
+        settleResolve();
       }
-    }
-  } finally {
-    reader.releaseLock();
-  }
-  throw new Error(`Server did not emit ready message "${readyMessage}" in time. Full output:\n${output}`);
+    };
+
+    const onError = (err: Error) => {
+      settleReject(err);
+    };
+
+    const onEnd = () => {
+      if (!output.includes(readyMessage)) {
+        settleReject(new Error(`Server stream ended without ready message "${readyMessage}". Full output:\n${output}`));
+      }
+    };
+
+    stream.on("data", onData);
+    stream.on("error", onError);
+    stream.on("end", onEnd);
+  });
 };
 
 beforeAll(async () => {
   console.log("Starting mock MCP servers for testing...");
 
-  const stdioServerPath = path.resolve(import.meta.dir, "mock_mcp_server.ts");
-  stdioServerProcess = Bun.spawn(["bun", "run", stdioServerPath], {
-    stdout: "pipe",
-    stderr: "inherit",
+  const stdioServerPath = path.resolve(process.cwd(), "tests", "mock_mcp_server.js");
+  stdioServerProcess = spawn("node", [stdioServerPath], {
+    stdio: ["pipe", "pipe", "inherit"],
     windowsHide: true,
   });
   console.log(`Spawned stdio server with PID: ${stdioServerProcess.pid}`);
-  await awaitServerReady(stdioServerProcess.stdout, "Mock STDIN MCP Server is running.");
+  await awaitServerReady(stdioServerProcess.stdout!, "Mock STDIN MCP Server is running.");
 
-  const httpServerPath = path.resolve(import.meta.dir, "mock_http_mcp_server.ts");
-  httpServerProcess = Bun.spawn(["bun", "run", httpServerPath], {
-    stdout: "pipe",
-    stderr: "inherit",
+  const httpServerPath = path.resolve(process.cwd(), "tests", "mock_http_mcp_server.js");
+  httpServerProcess = spawn("node", [httpServerPath], {
+    stdio: ["pipe", "pipe", "inherit"],
     windowsHide: true,
   });
   console.log(`Spawned http server with PID: ${httpServerProcess.pid}`);
-  await awaitServerReady(httpServerProcess.stdout, `Mock HTTP MCP Server listening on port ${HTTP_PORT}`);
+  await awaitServerReady(httpServerProcess.stdout!, `Mock HTTP MCP Server listening on port ${HTTP_PORT}`);
 
   console.log("Both mock servers are ready.");
 }, 25000);
@@ -107,7 +137,7 @@ afterAll(async () => {
     if (isWindows) {
       // On Windows, use taskkill to kill the entire process tree
       try {
-        Bun.spawnSync(["taskkill", "/F", "/T", "/PID", stdioServerProcess.pid.toString()]);
+        spawnSync("taskkill", ["/F", "/T", "/PID", stdioServerProcess.pid.toString()]);
       } catch (e) {
         // Ignore errors if process already terminated
       }
@@ -115,7 +145,7 @@ afterAll(async () => {
       stdioServerProcess.kill();
       await new Promise(resolve => setTimeout(resolve, 100));
       if (!stdioServerProcess.killed) {
-        stdioServerProcess.kill(9);
+        stdioServerProcess.kill("SIGKILL");
       }
     }
   }
@@ -124,7 +154,7 @@ afterAll(async () => {
     if (isWindows) {
       // On Windows, use taskkill to kill the entire process tree
       try {
-        Bun.spawnSync(["taskkill", "/F", "/T", "/PID", httpServerProcess.pid.toString()]);
+        spawnSync("taskkill", ["/F", "/T", "/PID", httpServerProcess.pid.toString()]);
       } catch (e) {
         // Ignore errors if process already terminated
       }
@@ -132,7 +162,7 @@ afterAll(async () => {
       httpServerProcess.kill();
       await new Promise(resolve => setTimeout(resolve, 100));
       if (!httpServerProcess.killed) {
-        httpServerProcess.kill(9);
+        httpServerProcess.kill("SIGKILL");
       }
     }
   }
@@ -145,7 +175,7 @@ afterAll(async () => {
 describe("McpCommunicationProtocol", () => {
 
   describe("Stdio Transport", () => {
-    const stdioServerPath = path.resolve(import.meta.dir, "mock_mcp_server.ts");
+    const stdioServerPath = path.resolve(process.cwd(), "tests", "mock_mcp_server.js");
     const callTemplate: McpCallTemplate = {
       name: "mock_stdio_manual",
       call_template_type: "mcp",
@@ -153,8 +183,8 @@ describe("McpCommunicationProtocol", () => {
         mcpServers: {
           mock_stdio_server: {
             transport: 'stdio',
-            command: 'bun',
-            args: ['run', stdioServerPath],
+            command: 'node',
+            args: [stdioServerPath],
             cwd: path.dirname(stdioServerPath)
           }
         }

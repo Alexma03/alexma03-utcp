@@ -1,12 +1,12 @@
-# @utcp/file: File System Communication Protocol Plugin for UTCP
+# @alexma03/utcp-file: File System Communication Protocol Plugin for UTCP
 
-The `@utcp/file` package provides a straightforward communication protocol for the Universal Tool Calling Protocol (UTCP) client to interact with local files. It's primarily used for loading static UTCP Manuals or OpenAPI specifications directly from local JSON or YAML files, without needing a network request. **Node.js only** - requires file system access.
+The `@alexma03/utcp-file` package provides a straightforward communication protocol for the Universal Tool Calling Protocol (UTCP) client to interact with local files. It's primarily used for loading static UTCP Manuals or OpenAPI specifications directly from local JSON or YAML files, without needing a network request. **Node.js only** - requires file system access.
 
 ## Features
 
 *   **File `CallTemplate`**: Defines the configuration for file-based tool definitions (`FileCallTemplate`), specifying the `file_path` to the local manual or spec. Authentication is explicitly `undefined` as file access typically relies on local permissions.
 *   **`FileCommunicationProtocol`**: Implements the `CommunicationProtocol` interface for file-based interactions:
-    *   **Tool Discovery**: Reads and parses local JSON or YAML files. It can directly interpret UTCP Manuals or automatically convert OpenAPI (v2/v3) specifications into UTCP `Tool` definitions (by utilizing the `OpenApiConverter` from `@utcp/http`).
+    *   **Tool Discovery**: Reads and parses local JSON or YAML files. It can directly interpret UTCP Manuals or automatically convert OpenAPI (v2/v3) specifications into UTCP `Tool` definitions (by utilizing the `OpenApiConverter` from `@alexma03/utcp-http`).
     *   **Tool Execution**: When a tool associated with a `FileCallTemplate` is "called", the protocol simply returns the raw content of the configured `file_path` as a string. This is useful for retrieving static data, configuration snippets, or even full documentation embedded as a tool.
     *   **Stateless**: This protocol does not maintain any persistent connections or external resources, making it very lightweight.
     *   **Path Resolution**: Resolves relative file paths using the `UtcpClient`'s configured root directory (`_rootPath`), ensuring flexibility in project structure.
@@ -14,23 +14,23 @@ The `@utcp/file` package provides a straightforward communication protocol for t
 ## Installation
 
 ```bash
-bun add @utcp/file @utcp/sdk
+bun add @alexma03/utcp-file @alexma03/utcp-sdk
 
 # Or using npm
-npm install @utcp/file @utcp/sdk
+npm install @alexma03/utcp-file @alexma03/utcp-sdk
 ```
 
-Note: `@utcp/sdk` is a peer dependency. `@utcp/http` and `js-yaml` dependencies are included automatically for OpenAPI conversion and YAML parsing.
+Note: `@alexma03/utcp-sdk` is a peer dependency. `@alexma03/utcp-http` and `js-yaml` dependencies are included automatically for OpenAPI conversion and YAML parsing.
 
 ## Usage
 
-The File plugin registers automatically when you import it—no manual registration needed. Simply import from `@utcp/file` to enable file system support.
+The File plugin registers automatically when you import it—no manual registration needed. Simply import from `@alexma03/utcp-file` to enable file system support.
 
 ```typescript
 // From your application's entry point
 
-import { UtcpClient } from '@utcp/sdk';
-import { FileCallTemplateSerializer } from '@utcp/file';
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import { FileCallTemplateSerializer } from '@alexma03/utcp-file';
 import * as path from 'path';
 import * as fs from 'fs/promises'; // For creating dummy files
 
@@ -122,9 +122,9 @@ async function main() {
 main().catch(console.error);
 ```
 
-## Comparison with @utcp/text
+## Comparison with @alexma03/utcp-text
 
-| Feature | @utcp/file | @utcp/text |
+| Feature | @alexma03/utcp-file | @alexma03/utcp-text |
 |---------|------------|-----------|
 | Browser compatible | ❌ No | ✅ Yes |
 | Node.js compatible | ✅ Yes | ✅ Yes |

@@ -3,6 +3,16 @@ import ivm from 'isolated-vm';
 
 const RECOMMENDED_NODE_VERSION = '24.14.0';
 
+export class CodeModeExecutionError extends Error {
+  public readonly logs: string[];
+
+  constructor(message: string, logs: string[]) {
+    super(message);
+    this.name = 'CodeModeExecutionError';
+    this.logs = logs;
+  }
+}
+
 function getRuntimeCompatibilityHint(): string | null {
   const nodeVersion = process.versions.node;
   const nodeMajor = Number.parseInt(nodeVersion.split('.')[0] ?? '', 10);
@@ -244,10 +254,8 @@ ${interfaces.join('\n\n')}`;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const runtimeHint = getRuntimeCompatibilityHint();
-      return { 
-        result: null, 
-        logs: [...logs, `[ERROR] Code execution failed: ${runtimeHint ? `${errorMessage} ${runtimeHint}` : errorMessage}`] 
-      };
+      const executionErrorMessage = `[ERROR] Code execution failed: ${runtimeHint ? `${errorMessage} ${runtimeHint}` : errorMessage}`;
+      throw new CodeModeExecutionError(executionErrorMessage, [...logs, executionErrorMessage]);
     } finally {
       isolate?.dispose();
     }

@@ -1,7 +1,6 @@
 /**
  * Example test file demonstrating usage of the direct-call plugin.
  */
-import { describe, test, expect, beforeAll } from 'bun:test';
 import { UtcpClient, CommunicationProtocol } from '@alexma03/utcp-sdk';
 import { addFunctionToUtcpDirectCall, registerCallable, DirectCallTemplate } from '../src';
 import type { UtcpManual } from '@alexma03/utcp-sdk';

@@ -3,7 +3,7 @@
  * This validates the code mode functionality using direct-call tools
  */
 
-import { CodeModeUtcpClient } from '../src/index';
+import { CodeModeExecutionError, CodeModeUtcpClient } from '../src/index';
 import { addFunctionToUtcpDirectCall } from '@alexma03/utcp-direct-call';
 
 // Test utility functions
@@ -459,9 +459,14 @@ describe('CodeModeUtcpClient', () => {
       return { completed: true };
     `;
     
-    const result = await client.callToolChain(code, 1000);
-    expect(result.result).toBeNull();
-    expect(result.logs.some((log: string) => log.includes('Code execution failed'))).toBe(true);
+    await expect(client.callToolChain(code, 1000)).rejects.toBeInstanceOf(CodeModeExecutionError);
+
+    try {
+      await client.callToolChain(code, 1000);
+    } catch (error) {
+      expect(error).toBeInstanceOf(CodeModeExecutionError);
+      expect((error as CodeModeExecutionError).logs.some((log: string) => log.includes('Code execution failed'))).toBe(true);
+    }
   });
 
   test('should handle code syntax errors', async () => {
@@ -470,9 +475,14 @@ describe('CodeModeUtcpClient', () => {
       return result;
     `;
     
-    const result = await client.callToolChain(invalidCode);
-    expect(result.result).toBeNull();
-    expect(result.logs.some((log: string) => log.includes('Code execution failed'))).toBe(true);
+    await expect(client.callToolChain(invalidCode)).rejects.toBeInstanceOf(CodeModeExecutionError);
+
+    try {
+      await client.callToolChain(invalidCode);
+    } catch (error) {
+      expect(error).toBeInstanceOf(CodeModeExecutionError);
+      expect((error as CodeModeExecutionError).logs.some((log: string) => log.includes('Code execution failed'))).toBe(true);
+    }
   });
 
   test('should have access to basic JavaScript globals', async () => {

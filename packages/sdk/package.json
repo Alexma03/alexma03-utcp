@@ -1,6 +1,6 @@
 {
   "name": "@alexma03/utcp-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Universal Tool Calling Protocol SDK",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -10,8 +10,12 @@
   "author": "Alexma03",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alexma03/alexma03-utcp.git",
+    "url": "git+https://github.com/Alexma03/alexma03-utcp.git",
     "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/Alexma03/alexma03-utcp#readme",
+  "bugs": {
+    "url": "https://github.com/Alexma03/alexma03-utcp/issues"
   },
   "keywords": [
     "utcp",
@@ -49,7 +53,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "bun-types": "latest",
+    "@types/node": "20.0.0",
     "typescript": "^5.0.0"
   }
 }

@@ -1,15 +1,15 @@
-# @utcp/text
+# @alexma03/utcp-text
 
 Text Content Communication Protocol plugin for the Universal Tool Calling Protocol (UTCP).
 
 ## Overview
 
-This plugin provides support for loading UTCP manuals and tool definitions from direct text/string content. Unlike `@utcp/file` which reads from files, this plugin is **browser-compatible** and works in any JavaScript environment.
+This plugin provides support for loading UTCP manuals and tool definitions from direct text/string content. Unlike `@alexma03/utcp-file` which reads from files, this plugin is **browser-compatible** and works in any JavaScript environment.
 
 ## Installation
 
 ```bash
-npm install @utcp/text
+npm install @alexma03/utcp-text
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ npm install @utcp/text
 The plugin automatically registers itself when imported:
 
 ```typescript
-import '@utcp/text';
-import { UtcpClient } from '@utcp/sdk';
+import '@alexma03/utcp-text';
+import { UtcpClient } from '@alexma03/utcp-sdk';
 
 const utcpManualContent = JSON.stringify({
   tools: [
@@ -32,7 +32,7 @@ const utcpManualContent = JSON.stringify({
 });
 
 const client = await UtcpClient.create();
-await client.registerCallTemplate({
+await client.registerManual({
   call_template_type: 'text',
   name: 'my-manual',
   content: utcpManualContent
@@ -58,8 +58,8 @@ The text call template accepts the following configuration:
 ## Example: OpenAPI Spec
 
 ```typescript
-import '@utcp/text';
-import { UtcpClient } from '@utcp/sdk';
+import '@alexma03/utcp-text';
+import { UtcpClient } from '@alexma03/utcp-sdk';
 
 const openApiSpec = `
 openapi: 3.0.0
@@ -76,7 +76,7 @@ paths:
 `;
 
 const client = await UtcpClient.create();
-await client.registerCallTemplate({
+await client.registerManual({
   call_template_type: 'text',
   name: 'my-api',
   content: openApiSpec
@@ -88,24 +88,24 @@ await client.registerCallTemplate({
 Perfect for web applications:
 
 ```typescript
-import '@utcp/text';
-import { UtcpClient } from '@utcp/sdk';
+import '@alexma03/utcp-text';
+import { UtcpClient } from '@alexma03/utcp-sdk';
 
 // Load from API or inline
 const response = await fetch('/api/utcp-manual');
 const manualContent = await response.text();
 
 const client = await UtcpClient.create();
-await client.registerCallTemplate({
+await client.registerManual({
   call_template_type: 'text',
   name: 'remote-manual',
   content: manualContent
 });
 ```
 
-## Comparison with @utcp/file
+## Comparison with @alexma03/utcp-file
 
-| Feature | @utcp/text | @utcp/file |
+| Feature | @alexma03/utcp-text | @alexma03/utcp-file |
 |---------|-------------|-----------|
 | Browser compatible | ✅ Yes | ❌ No |
 | Node.js compatible | ✅ Yes | ✅ Yes |

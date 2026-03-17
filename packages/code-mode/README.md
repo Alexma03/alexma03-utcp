@@ -1,18 +1,18 @@
-# @utcp/code-mode
+# @alexma03/utcp-code-mode
 
 Execute TypeScript code with direct access to UTCP tools using isolated-vm for secure sandboxed execution.
 
 ## Installation
 
 ```bash
-npm install @utcp/code-mode @utcp/sdk @utcp/direct-call isolated-vm
+npm install @alexma03/utcp-code-mode @alexma03/utcp-sdk @alexma03/utcp-direct-call isolated-vm
 ```
 
 ## Quick Start
 
 ```typescript
-import { CodeModeUtcpClient } from '@utcp/code-mode';
-import { addFunctionToUtcpDirectCall } from '@utcp/direct-call';
+import { CodeModeUtcpClient } from '@alexma03/utcp-code-mode';
+import { addFunctionToUtcpDirectCall } from '@alexma03/utcp-direct-call';
 
 // Register a function that returns a UTCP manual
 addFunctionToUtcpDirectCall('getWeatherManual', async () => ({
@@ -71,31 +71,34 @@ const client = await CodeModeUtcpClient.create(
 );
 ```
 
-### `client.callToolChain(code, options?)`
+### `client.callToolChain(code, timeout?, memoryLimit?)`
 
 Executes TypeScript code with tool access.
 
 ```typescript
-const result = await client.callToolChain(code, {
-  timeout: 30000,     // execution timeout in ms (default: 30000)
-  memoryLimit: 128    // memory limit in MB (default: 128)
-});
+const result = await client.callToolChain(
+  code,
+  30000,
+  128
+);
 ```
 
 **Returns:**
 ```typescript
 {
-  result: any;           // return value from code
-  consoleOutput: string[]; // captured console.log/error output
+  result: any;      // return value from code
+  logs: string[];   // captured console.log/error/warn output
 }
 ```
 
-### `client.getToolInterfaces()`
+If execution fails, `callToolChain` throws `CodeModeExecutionError` and includes captured `logs`.
+
+### `client.getAllToolsTypeScriptInterfaces()`
 
 Returns TypeScript interface definitions for all registered tools.
 
 ```typescript
-const interfaces = await client.getToolInterfaces();
+const interfaces = await client.getAllToolsTypeScriptInterfaces();
 console.log(interfaces);
 // "interface Weather_get_current_Input { city: string; } ..."
 ```
@@ -130,7 +133,7 @@ Inside `callToolChain`, you have access to:
 | `__interfaces` | String with all TypeScript interface definitions |
 | `__getToolInterface(name)` | Get interface for specific tool |
 | `__availableTools` | Array of available tool access patterns |
-| `console.log/error/warn` | Captured and returned in `consoleOutput` |
+| `console.log/error/warn` | Captured and returned in `logs` |
 | Standard JS globals | `JSON`, `Math`, `Date`, `Array`, etc. |
 
 ## Example: Chaining Tools
@@ -150,20 +153,20 @@ const result = await client.callToolChain(`
 `);
 ```
 
-## Using Text Templates
+## Using File Templates
 
 For loading tools from UTCP manual files:
 
 ```typescript
-import { CodeModeUtcpClient } from '@utcp/code-mode';
-import '@utcp/text'; // Enables text call template support
+import { CodeModeUtcpClient } from '@alexma03/utcp-code-mode';
+import '@alexma03/utcp-file';
 
 const client = await CodeModeUtcpClient.create();
 
 // Register from a UTCP manual file
 await client.registerManual({
   name: 'myapi',
-  call_template_type: 'text',
+  call_template_type: 'file',
   file_path: './my-api-manual.utcp.json'
 });
 

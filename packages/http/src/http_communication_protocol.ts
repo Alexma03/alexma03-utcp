@@ -286,74 +286,58 @@ export class HttpCommunicationProtocol implements CommunicationProtocol {
     }
 
     this._logInfo(`Fetching new OAuth2 token for client: '${clientId}'`);
-    const tokenFetchPromises: Promise<string>[] = [];
+    const errors: string[] = [];
 
-    // Method 1: Send credentials in the request body
-    tokenFetchPromises.push(
-      (async () => {
-        try {
-          const bodyData = new URLSearchParams({
-            'grant_type': 'client_credentials',
-            'client_id': authDetails.client_id,
-            'client_secret': authDetails.client_secret,
-            'scope': authDetails.scope || ''
-          });
-          const response = await this._axiosInstance.post(
-            authDetails.token_url,
-            bodyData.toString(),
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-          );
-          if (!response.data.access_token) {
-            throw new Error("Access token not found in response.");
-          }
-          const expiresAt = Date.now() + (response.data.expires_in * 1000 || 3600 * 1000);
-          this._oauthTokens.set(clientId, { accessToken: response.data.access_token, expiresAt });
-          this._logInfo(`OAuth2 token fetched via body for client: '${clientId}'.`);
-          return response.data.access_token;
-        } catch (error: any) {
-          this._logError(`OAuth2 with credentials in body failed for '${clientId}':`, error);
-          throw error;
-        }
-      })()
-    );
-
-    // Method 2: Send credentials as Basic Auth header
-    tokenFetchPromises.push(
-      (async () => {
-        try {
-          const bodyData = new URLSearchParams({
-            'grant_type': 'client_credentials',
-            'scope': authDetails.scope || ''
-          });
-          const response = await this._axiosInstance.post(
-            authDetails.token_url,
-            bodyData.toString(),
-            {
-              auth: { username: authDetails.client_id, password: authDetails.client_secret },
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            }
-          );
-          if (!response.data.access_token) {
-            throw new Error("Access token not found in response.");
-          }
-          const expiresAt = Date.now() + (response.data.expires_in * 1000 || 3600 * 1000);
-          this._oauthTokens.set(clientId, { accessToken: response.data.access_token, expiresAt });
-          this._logInfo(`OAuth2 token fetched via Basic Auth header for client: '${clientId}'.`);
-          return response.data.access_token;
-        } catch (error: any) {
-          this._logError(`OAuth2 with Basic Auth header failed for '${clientId}':`, error);
-          throw error;
-        }
-      })()
-    );
-
-    // Try both methods, and resolve if any succeed
     try {
-      return await Promise.any(tokenFetchPromises);
-    } catch (aggregateError: any) {
-      const errorMessages = aggregateError.errors ? aggregateError.errors.map((e: Error) => e.message).join('; ') : String(aggregateError);
-      throw new Error(`Failed to fetch OAuth2 token for client '${clientId}' after trying all methods. Details: ${errorMessages}`);
+      const bodyData = new URLSearchParams({
+        'grant_type': 'client_credentials',
+        'client_id': authDetails.client_id,
+        'client_secret': authDetails.client_secret,
+        'scope': authDetails.scope || ''
+      });
+      const response = await this._axiosInstance.post(
+        authDetails.token_url,
+        bodyData.toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+      if (!response.data.access_token) {
+        throw new Error("Access token not found in response.");
+      }
+      const expiresAt = Date.now() + (response.data.expires_in * 1000 || 3600 * 1000);
+      this._oauthTokens.set(clientId, { accessToken: response.data.access_token, expiresAt });
+      this._logInfo(`OAuth2 token fetched via body for client: '${clientId}'.`);
+      return response.data.access_token;
+    } catch (error: any) {
+      this._logError(`OAuth2 with credentials in body failed for '${clientId}':`, error);
+      errors.push(error instanceof Error ? error.message : String(error));
     }
+
+    try {
+      const bodyData = new URLSearchParams({
+        'grant_type': 'client_credentials',
+        'scope': authDetails.scope || ''
+      });
+      const response = await this._axiosInstance.post(
+        authDetails.token_url,
+        bodyData.toString(),
+        {
+          auth: { username: authDetails.client_id, password: authDetails.client_secret },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }
+      );
+      if (!response.data.access_token) {
+        throw new Error("Access token not found in response.");
+      }
+      const expiresAt = Date.now() + (response.data.expires_in * 1000 || 3600 * 1000);
+      this._oauthTokens.set(clientId, { accessToken: response.data.access_token, expiresAt });
+      this._logInfo(`OAuth2 token fetched via Basic Auth header for client: '${clientId}'.`);
+      return response.data.access_token;
+    } catch (error: any) {
+      this._logError(`OAuth2 with Basic Auth header failed for '${clientId}':`, error);
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+
+    throw new Error(`Failed to fetch OAuth2 token for client '${clientId}' after trying all methods. Details: ${errors.join('; ')}`);
   }
 
   /**

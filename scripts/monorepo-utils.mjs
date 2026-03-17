@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-export const repoRoot = '/Users/alex03/Projects/alexma03-utcp';
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFilePath);
+
+export const repoRoot = path.resolve(currentDir, '..');
 export const packagesDir = path.join(repoRoot, 'packages');
 const depFields = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 

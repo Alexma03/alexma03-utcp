@@ -1,5 +1,4 @@
 // packages/file/tests/file_communication_protocol.test.ts
-import { test, expect, describe, afterEach } from "bun:test";
 import { unlink, writeFile } from 'fs/promises';
 import path from 'path';
 // Import from package indices to trigger auto-registration
@@ -20,7 +19,7 @@ afterEach(async () => {
 });
 
 const createTempFile = async (fileName: string, content: string): Promise<string> => {
-  const filePath = path.join(import.meta.dir, fileName);
+  const filePath = path.join(process.cwd(), 'tests', fileName);
   await writeFile(filePath, content, 'utf-8');
   tempFiles.push(filePath);
   return filePath;
@@ -162,9 +161,7 @@ describe("FileCommunicationProtocol", () => {
         call_template_type: 'file'
       } as any;
 
-      await expect(async () => {
-        await protocol.registerManual(mockClient, callTemplate);
-      }).toThrow();
+      await expect(protocol.registerManual(mockClient, callTemplate)).rejects.toThrow();
     });
   });
 
@@ -199,9 +196,7 @@ describe("FileCommunicationProtocol", () => {
         call_template_type: 'file'
       } as any;
 
-      await expect(async () => {
-        await protocol.callTool(mockClient, "any.tool", {}, callTemplate);
-      }).toThrow();
+      await expect(protocol.callTool(mockClient, "any.tool", {}, callTemplate)).rejects.toThrow();
     });
   });
 

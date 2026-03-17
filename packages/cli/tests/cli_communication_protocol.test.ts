@@ -1,5 +1,4 @@
 // packages/cli/tests/cli_communication_protocol.test.ts
-import { test, expect, describe, afterEach } from "bun:test";
 import { CliCommunicationProtocol } from '../src/cli_communication_protocol';
 import { CliCallTemplateSchema, CliCallTemplate } from '../src/cli_call_template';
 import { IUtcpClient } from '@alexma03/utcp-sdk';
@@ -17,7 +16,7 @@ afterEach(async () => {
 });
 
 const createTempDir = async (name: string): Promise<string> => {
-  const dirPath = path.join(import.meta.dir, name);
+  const dirPath = path.join(process.cwd(), 'tests', name);
   await fs.mkdir(dirPath, { recursive: true });
   tempDirs.push(dirPath);
   return dirPath;
@@ -105,6 +104,39 @@ describe('CliCommunicationProtocol (Multi-Command)', () => {
     // The argument is substituted directly without extra quoting
     expect(result.trim()).toContain('Received: Initial message: Workflow Argument');
   });
+
+  test('should not inject extra shell quotes when placeholder is already inside double quotes', async () => {
+    const callTemplate: CliCallTemplate = CliCallTemplateSchema.parse({
+      name: 'quoted_arg_substitution_test',
+      call_template_type: 'cli',
+      commands: [
+        { command: 'echo "UTCP_ARG_message_UTCP_END"' },
+      ],
+    });
+
+    const result = await cliProtocol.callTool(mockClient, 'test.quoted-args', { message: 'Workflow Argument' }, callTemplate);
+    expect(result.trim()).toBe('Workflow Argument');
+  });
+
+  test('should stop on Unix command failure and return the failing command output', async () => {
+    if (isWindows) {
+      return;
+    }
+
+    const callTemplate: CliCallTemplate = CliCallTemplateSchema.parse({
+      name: 'failing_command_test',
+      call_template_type: 'cli',
+      commands: [
+        { command: 'echo "before failure"', append_to_final_output: false },
+        { command: `sh -c 'echo "failure output"; exit 7'`, append_to_final_output: true },
+        { command: 'echo "should not run"', append_to_final_output: true },
+      ],
+    });
+
+    const result = await cliProtocol.callTool(mockClient, 'test.failure', {}, callTemplate);
+    expect(result).toContain('failure output');
+    expect(result).not.toContain('should not run');
+  });
   
   test('should use custom environment variables and working directory', async () => {
     const tempDir = await createTempDir('env_test_dir');
@@ -124,7 +156,7 @@ describe('CliCommunicationProtocol (Multi-Command)', () => {
     });
 
     const result = await cliProtocol.callTool(mockClient, 'test.env', {}, callTemplate);
-    expect(result).toInclude('Var is Hello World from Env');
+    expect(result).toContain('Var is Hello World from Env');
     expect(path.normalize(result.trim())).toContain(path.normalize(tempDir));
   });
 });

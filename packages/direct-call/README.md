@@ -1,4 +1,4 @@
-# @utcp/direct-call
+# @alexma03/utcp-direct-call
 
 Direct callable functions plugin for UTCP (Universal Tool Calling Protocol).
 
@@ -14,7 +14,7 @@ This plugin allows you to register and call JavaScript/TypeScript functions dire
 ## Installation
 
 ```bash
-npm install @utcp/direct-call
+npm install @alexma03/utcp-direct-call
 ```
 
 ## Usage
@@ -24,8 +24,8 @@ npm install @utcp/direct-call
 ### Using `addFunctionToUtcpDirectCall`
 
 ```typescript
-import { addFunctionToUtcpDirectCall } from '@utcp/direct-call';
-import { UtcpManual } from '@utcp/sdk';
+import { addFunctionToUtcpDirectCall } from '@alexma03/utcp-direct-call';
+import { UtcpManual } from '@alexma03/utcp-sdk';
 
 // Register a function that returns a UTCP manual
 const getMyManual = addFunctionToUtcpDirectCall('myManual', async (): Promise<UtcpManual> => {
@@ -64,13 +64,11 @@ addFunctionToUtcpDirectCall('greet', greet);
 ### Manual Registration
 
 ```typescript
-import { DirectCommunicationProtocol } from '@utcp/direct-call';
-import { UtcpManual } from '@utcp/sdk';
-
-const protocol = new DirectCommunicationProtocol();
+import { registerCallable } from '@alexma03/utcp-direct-call';
+import { UtcpManual } from '@alexma03/utcp-sdk';
 
 // Register a callable for returning manuals
-protocol.registerCallable('myManual', async () => {
+registerCallable('myManual', async () => {
   return {
     utcp_version: '1.0.0',
     manual_version: '1.0.0',
@@ -79,7 +77,7 @@ protocol.registerCallable('myManual', async () => {
 });
 
 // Register a callable for tool execution
-protocol.registerCallable('myTool', async (...args: any[]) => {
+registerCallable('myTool', async (...args: any[]) => {
   return { result: 'Success!' };
 });
 ```

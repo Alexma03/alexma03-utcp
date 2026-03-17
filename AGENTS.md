@@ -27,7 +27,7 @@ Este documento explica cómo trabajar en el monorepo, cómo cambiar versiones, c
 - Cada paquete publicable tiene su propio `package.json` dentro de `packages/*`.
 - Si cambias la versión de un paquete interno, debes sincronizar las referencias internas del resto de paquetes.
 - No publiques versiones que ya existan en npm.
-- Antes de publicar, comprueba siempre el contenido del tarball con `npm pack --dry-run`.
+- Antes de publicar, comprueba siempre el contenido del tarball con `pnpm pack --dry-run`.
 - Si un paquete debe funcionar con `npx`, revisa también el campo `bin` y su entrypoint real.
 
 ## Scripts disponibles en la raíz
@@ -99,7 +99,7 @@ Antes de publicar cualquier paquete, revisa:
 Para un paquete concreto:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Ejecuta el comando dentro del directorio del paquete.
@@ -109,7 +109,7 @@ Ejecuta el comando dentro del directorio del paquete.
 Comprueba el contenido final que se subiría a npm:
 
 ```bash
-npm pack --dry-run
+pnpm pack --dry-run
 ```
 
 Verifica que incluya:
@@ -134,13 +134,13 @@ No dejes `workspace:*` en dependencias o peerDependencies que formen parte del p
 Sitúate en el directorio del paquete y ejecuta:
 
 ```bash
-npm publish --access public
+pnpm publish --access public --no-git-checks
 ```
 
 Ejemplo:
 
 ```bash
-npm publish --access public
+pnpm publish --access public --no-git-checks
 ```
 
 En:
@@ -178,10 +178,8 @@ Este script:
 
 ```bash
 pnpm bump-package code-mode-mcp 1.2.3
-cd packages/code-mode-mcp
-npm run build
-npm pack --dry-run
-cd ../..
+pnpm --filter @alexma03/utcp-code-mode-mcp run build
+pnpm --filter @alexma03/utcp-code-mode-mcp pack --dry-run
 pnpm publish-changed:dry-run
 pnpm publish-changed
 ```
@@ -197,7 +195,7 @@ pnpm publish-changed
 
 ## Publicación manual del monorepo
 
-Si necesitas publicar manualmente paquete por paquete, usa este orden aproximado:
+Si necesitas publicar manualmente paquete por paquete, usa `pnpm publish --access public --no-git-checks` en cada directorio, en este orden:
 
 1. `packages/sdk`
 2. `packages/http`
@@ -274,7 +272,7 @@ Comprueba:
 - ruta del wrapper
 - permisos del archivo si aplica
 - inclusión del archivo en `files`
-- resultado de `npm pack --dry-run`
+- resultado de `pnpm pack --dry-run`
 
 ## Workflows
 

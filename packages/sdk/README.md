@@ -1,10 +1,10 @@
-# @utcp/sdk
+# @alexma03/utcp-sdk
 
 Universal Tool Calling Protocol (UTCP) Core SDK for TypeScript
 
 ## Overview
 
-The `@utcp/sdk` package provides the fundamental components and interfaces for the Universal Tool Calling Protocol (UTCP) in TypeScript. It is designed to be lean and extensible, serving as the central hub for integrating various communication protocols via a plugin-based architecture.
+The `@alexma03/utcp-sdk` package provides the fundamental components and interfaces for the Universal Tool Calling Protocol (UTCP) in TypeScript. It is designed to be lean and extensible, serving as the central hub for integrating various communication protocols via a plugin-based architecture.
 
 ## Features
 
@@ -37,10 +37,10 @@ The `@utcp/sdk` package provides the fundamental components and interfaces for t
 ## Installation
 
 ```bash
-npm install @utcp/sdk
+npm install @alexma03/utcp-sdk
 
 # Or with bun
-bun add @utcp/sdk
+bun add @alexma03/utcp-sdk
 ```
 
 ## Quick Start
@@ -50,9 +50,9 @@ bun add @utcp/sdk
 **Important:** Plugins must be explicitly imported to register their protocols:
 
 ```typescript
-import { UtcpClient } from '@utcp/sdk';
-import '@utcp/http';  // Auto-registers HTTP protocol
-import { HttpCallTemplateSerializer } from '@utcp/http';
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import '@alexma03/utcp-http';  // Auto-registers HTTP protocol
+import { HttpCallTemplateSerializer } from '@alexma03/utcp-http';
 
 async function main() {
   // Create client
@@ -88,8 +88,8 @@ async function main() {
 ### With Environment Variables
 
 ```typescript
-import { UtcpClient } from '@utcp/sdk';
-import '@utcp/dotenv-loader';  // Required for .env file support
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import '@alexma03/utcp-dotenv-loader';  // Required for .env file support
 
 const client = await UtcpClient.create(process.cwd(), {
   load_variables_from: [
@@ -180,9 +180,9 @@ async getTool(toolName: string): Promise<Tool | undefined>
 
 #### Register/Deregister Manuals
 ```typescript
-async registerManual(callTemplate: CallTemplate): Promise<void>
+async registerManual(callTemplate: CallTemplate): Promise<RegisterManualResult>
 async deregisterManual(manualName: string): Promise<boolean>
-async registerManuals(callTemplates: CallTemplate[]): Promise<void>
+async registerManuals(callTemplates: CallTemplate[]): Promise<RegisterManualResult[]>
 ```
 
 #### Variable Utilities
@@ -246,15 +246,15 @@ All lookups use the namespaced key: `{namespace}_VARIABLE_NAME`
 UTCP provides several optional protocol plugins:
 
 **Browser-Compatible:**
-- `@utcp/http` - HTTP/HTTPS requests with full authentication support
-- `@utcp/text` - Direct text/string content (inline UTCP manuals or OpenAPI specs)
-- `@utcp/direct-call` - Direct function calls
+- `@alexma03/utcp-http` - HTTP/HTTPS requests with full authentication support
+- `@alexma03/utcp-text` - Direct text/string content (inline UTCP manuals or OpenAPI specs)
+- `@alexma03/utcp-direct-call` - Direct function calls
 
 **Node.js Only:**
-- `@utcp/file` - File system access for loading manuals from local files
-- `@utcp/mcp` - Model Context Protocol support
-- `@utcp/cli` - CLI command execution
-- `@utcp/dotenv-loader` - Load variables from .env files
+- `@alexma03/utcp-file` - File system access for loading manuals from local files
+- `@alexma03/utcp-mcp` - Model Context Protocol support
+- `@alexma03/utcp-cli` - CLI command execution
+- `@alexma03/utcp-dotenv-loader` - Load variables from .env files
 
 ### Explicit Plugin Import
 
@@ -262,17 +262,17 @@ Each plugin must be **explicitly imported** to register its protocol:
 
 ```typescript
 // Browser application - only import browser-compatible plugins
-import { UtcpClient } from '@utcp/sdk';
-import '@utcp/http';
-import '@utcp/text';
-import '@utcp/direct-call';
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import '@alexma03/utcp-http';
+import '@alexma03/utcp-text';
+import '@alexma03/utcp-direct-call';
 
 // Node.js application - can use all plugins
-import { UtcpClient } from '@utcp/sdk';
-import '@utcp/http';
-import '@utcp/mcp';
-import '@utcp/file';
-import '@utcp/dotenv-loader';
+import { UtcpClient } from '@alexma03/utcp-sdk';
+import '@alexma03/utcp-http';
+import '@alexma03/utcp-mcp';
+import '@alexma03/utcp-file';
+import '@alexma03/utcp-dotenv-loader';
 ```
 
 This explicit import approach ensures:
@@ -286,8 +286,8 @@ This explicit import approach ensures:
 For custom or third-party plugins:
 
 ```typescript
-import { CallTemplateSerializer } from '@utcp/sdk';
-import { CommunicationProtocol } from '@utcp/sdk';
+import { CallTemplateSerializer } from '@alexma03/utcp-sdk';
+import { CommunicationProtocol } from '@alexma03/utcp-sdk';
 
 // Register custom call template
 CallTemplateSerializer.registerCallTemplate(
@@ -305,7 +305,7 @@ CommunicationProtocol.communicationProtocols['custom_type'] =
 ### Custom Tool Repository
 
 ```typescript
-import { ConcurrentToolRepository, Tool } from '@utcp/sdk';
+import { ConcurrentToolRepository, Tool } from '@alexma03/utcp-sdk';
 
 class CustomRepository implements ConcurrentToolRepository {
   tool_repository_type = 'custom' as const;
@@ -325,7 +325,7 @@ const client = await UtcpClient.create(process.cwd(), {
 ### Custom Search Strategy
 
 ```typescript
-import { ToolSearchStrategy } from '@utcp/sdk';
+import { ToolSearchStrategy } from '@alexma03/utcp-sdk';
 
 class CustomSearchStrategy implements ToolSearchStrategy {
   tool_search_strategy_type = 'custom' as const;
@@ -363,7 +363,7 @@ const client = await UtcpClient.create(process.cwd(), {
 ## Error Handling
 
 ```typescript
-import { UtcpVariableNotFoundError } from '@utcp/sdk';
+import { UtcpVariableNotFoundError } from '@alexma03/utcp-sdk';
 
 try {
   await client.callTool('manual.tool', {});
@@ -380,7 +380,7 @@ try {
 The package is fully typed with TypeScript. All schemas are validated at runtime using Zod:
 
 ```typescript
-import { ToolSchema, CallTemplateSchema } from '@utcp/sdk';
+import { ToolSchema, CallTemplateSchema } from '@alexma03/utcp-sdk';
 
 // Runtime validation
 const tool = ToolSchema.parse(toolData);
@@ -390,7 +390,7 @@ const callTemplate = CallTemplateSchema.parse(templateData);
 ## Package Structure
 
 ```
-@utcp/sdk/
+@alexma03/utcp-sdk/
 ├── client/              # UtcpClient and configuration
 ├── data/                # Core data models (Tool, CallTemplate, Auth, etc.)
 ├── interfaces/          # Abstract interfaces for plugins
@@ -403,11 +403,11 @@ const callTemplate = CallTemplateSchema.parse(templateData);
 
 ## Related Packages
 
-- **`@utcp/sdk`** - Core SDK (this package)
-- `@utcp/http` - HTTP protocol support with OpenAPI conversion
-- `@utcp/mcp` - Model Context Protocol integration
-- `@utcp/text` - File-based tool loading
-- `@utcp/cli` - Command-line tool execution
+- **`@alexma03/utcp-sdk`** - Core SDK (this package)
+- `@alexma03/utcp-http` - HTTP protocol support with OpenAPI conversion
+- `@alexma03/utcp-mcp` - Model Context Protocol integration
+- `@alexma03/utcp-text` - File-based tool loading
+- `@alexma03/utcp-cli` - Command-line tool execution
 
 ## Contributing
 
